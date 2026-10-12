@@ -1,0 +1,123 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "livesync-whisper-listener.fullname" . }}
+  labels:
+    {{- include "livesync-whisper-listener.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "livesync-whisper-listener.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "livesync-whisper-listener.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: listener
+          image: {{ include "livesync-whisper-listener.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: COUCHDB_URL
+              value: {{ required "config.couchdbUrl is required" .Values.config.couchdbUrl | quote }}
+            - name: COUCHDB_USERNAME
+              value: {{ required "config.couchdbUsername is required" .Values.config.couchdbUsername | quote }}
+            - name: LIVESYNC_DATABASE
+              value: {{ required "config.database is required" .Values.config.database | quote }}
+            - name: WHISPER_URL
+              value: {{ required "config.whisperUrl is required" .Values.config.whisperUrl | quote }}
+            - name: WHISPER_MODEL_NAME
+              value: {{ .Values.config.whisperModelName | quote }}
+            - name: WHISPER_TIMEOUT_MS
+              value: {{ .Values.config.whisperTimeoutMs | quote }}
+            - name: MAX_AUDIO_BYTES
+              value: {{ printf "%.0f" .Values.config.maxAudioBytes | quote }}
+            - name: INTERVAL_SECONDS
+              value: {{ .Values.config.intervalSeconds | quote }}
+            - name: REDACT_PATHS
+              value: {{ .Values.config.redactPaths | quote }}
+            - name: STATE_DIR
+              value: {{ .Values.config.stateDir | quote }}
+            - name: LIVESYNC_E2EE_ALGORITHM
+              value: {{ .Values.config.livesync.e2eeAlgorithm | quote }}
+            - name: LIVESYNC_DYNAMIC_ITERATIONS
+              value: {{ .Values.config.livesync.dynamicIterations | quote }}
+            - name: LIVESYNC_CUSTOM_CHUNK_SIZE
+              value: {{ .Values.config.livesync.customChunkSize | quote }}
+            - name: LIVESYNC_MINIMUM_CHUNK_SIZE
+              value: {{ .Values.config.livesync.minimumChunkSize | quote }}
+            - name: LIVESYNC_HASH_ALGORITHM
+              value: {{ .Values.config.livesync.hashAlgorithm | quote }}
+            - name: LIVESYNC_CHUNK_SPLITTER_VERSION
+              value: {{ .Values.config.livesync.chunkSplitterVersion | quote }}
+            - name: LIVESYNC_COMPRESSION
+              value: {{ .Values.config.livesync.compression | quote }}
+            - name: LIVESYNC_CASE_SENSITIVE
+              value: {{ .Values.config.livesync.caseSensitive | quote }}
+            - name: LIVESYNC_NO_FIXED_CHUNK_REVISION
+              value: {{ .Values.config.livesync.noFixedChunkRevision | quote }}
+            - name: COUCHDB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "secrets.existingSecret is required" .Values.secrets.existingSecret }}
+                  key: {{ .Values.secrets.couchdbPasswordKey }}
+            - name: LIVESYNC_E2EE_PASSPHRASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.existingSecret }}
+                  key: {{ .Values.secrets.e2eePassphraseKey }}
+            {{- if .Values.secrets.obfuscatePassphraseKey }}
+            - name: LIVESYNC_OBFUSCATE_PASSPHRASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.existingSecret }}
+                  key: {{ .Values.secrets.obfuscatePassphraseKey }}
+            {{- end }}
+            {{- if .Values.secrets.whisperBearerTokenKey }}
+            - name: WHISPER_BEARER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.existingSecret }}
+                  key: {{ .Values.secrets.whisperBearerTokenKey }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+            - name: state
+              mountPath: {{ .Values.config.stateDir }}
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: state
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "livesync-whisper-listener.claimName" . }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi

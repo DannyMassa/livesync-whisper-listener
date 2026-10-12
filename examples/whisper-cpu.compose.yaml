@@ -1,0 +1,10 @@
+services:
+  whisper:
+    # Replace this moving tag with a tested release or digest before production use.
+    image: ghcr.io/ggml-org/whisper.cpp:main
+    command: whisper-server --host 0.0.0.0 --port 8080 --convert -m /models/ggml-base.en.bin
+    expose:
+      - "8080"
+    volumes:
+      - ./models:/models:ro
+    restart: unless-stopped

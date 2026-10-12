@@ -1,0 +1,25 @@
+services:
+  listener:
+    build: .
+    image: ghcr.io/dannymassa/livesync-whisper-listener:0.1.0
+    environment:
+      COUCHDB_URL: ${COUCHDB_URL:?required}
+      COUCHDB_USERNAME: ${COUCHDB_USERNAME:?required}
+      COUCHDB_PASSWORD: ${COUCHDB_PASSWORD:?required}
+      LIVESYNC_DATABASE: ${LIVESYNC_DATABASE:?required}
+      LIVESYNC_E2EE_PASSPHRASE: ${LIVESYNC_E2EE_PASSPHRASE:?required}
+      WHISPER_URL: ${WHISPER_URL:?required}
+      WHISPER_MODEL_NAME: ${WHISPER_MODEL_NAME:-whisper}
+    volumes:
+      - listener-state:/state
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+volumes:
+  listener-state:

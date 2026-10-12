@@ -1,0 +1,4 @@
+# LiveSync commonlib currently pins PouchDB's unsupported uuid release. The
+# listener does not call UUID v3/v5/v6 with caller-supplied buffers. Track the
+# compatibility-safe upstream upgrade in SECURITY.md.
+GHSA-w5hq-g745-h8pq

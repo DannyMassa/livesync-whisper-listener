@@ -1,0 +1,12 @@
+livesync-whisper-listener
+Copyright (C) 2026 Danny Massa
+
+This product includes @vrtmrz/livesync-commonlib, distributed under the MIT
+License. See https://github.com/vrtmrz/livesync-commonlib.
+
+The optional deployment examples interoperate with whisper.cpp, distributed
+under the MIT License. See https://github.com/ggml-org/whisper.cpp.
+
+Obsidian is a trademark of Dynalist Inc. This project is unofficial and is not
+affiliated with or endorsed by Obsidian, Dynalist Inc., or the Self-hosted
+LiveSync maintainers.

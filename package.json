@@ -1,0 +1,27 @@
+{
+  "name": "livesync-whisper-listener",
+  "version": "0.1.0",
+  "description": "Transcribe audio in an Obsidian Self-hosted LiveSync vault with a whisper.cpp-compatible server",
+  "type": "module",
+  "bin": {
+    "livesync-whisper-listener": "src/main.mjs"
+  },
+  "scripts": {
+    "start": "node src/main.mjs",
+    "test": "node --test",
+    "check": "node --check src/*.mjs && node --test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "GPL-3.0-only",
+  "files": [
+    "src",
+    "LICENSE",
+    "NOTICE",
+    "README.md"
+  ],
+  "dependencies": {
+    "@vrtmrz/livesync-commonlib": "0.1.31"
+  }
+}

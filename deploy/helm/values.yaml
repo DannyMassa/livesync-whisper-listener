@@ -1,0 +1,85 @@
+image:
+  repository: ghcr.io/dannymassa/livesync-whisper-listener
+  tag: ""
+  digest: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+config:
+  couchdbUrl: ""
+  couchdbUsername: ""
+  database: ""
+  whisperUrl: ""
+  whisperModelName: whisper
+  whisperTimeoutMs: 900000
+  maxAudioBytes: 104857600
+  intervalSeconds: 30
+  redactPaths: true
+  stateDir: /state
+  livesync:
+    e2eeAlgorithm: v2
+    dynamicIterations: false
+    customChunkSize: 60
+    minimumChunkSize: 20
+    hashAlgorithm: xxhash64
+    chunkSplitterVersion: v3-rabin-karp
+    compression: false
+    caseSensitive: false
+    noFixedChunkRevision: true
+
+secrets:
+  existingSecret: ""
+  couchdbPasswordKey: couchdb-password
+  e2eePassphraseKey: e2ee-passphrase
+  obfuscatePassphraseKey: ""
+  whisperBearerTokenKey: ""
+
+persistence:
+  enabled: true
+  existingClaim: ""
+  storageClass: ""
+  accessModes:
+    - ReadWriteOnce
+  size: 1Gi
+  annotations: {}
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+resources:
+  requests:
+    cpu: 20m
+    memory: 128Mi
+    ephemeral-storage: 64Mi
+  limits:
+    cpu: 500m
+    memory: 1Gi
+    ephemeral-storage: 256Mi
+
+terminationGracePeriodSeconds: 60
+
+networkPolicy:
+  enabled: false
+  # Supply standard NetworkPolicyPeer objects for CouchDB and Whisper. DNS
+  # egress remains enabled when the policy is created.
+  egressPeers: []
+
+extraEnv: []

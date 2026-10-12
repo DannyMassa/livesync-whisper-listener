@@ -1,0 +1,13 @@
+services:
+  whisper:
+    # Replace this moving tag with a tested release or digest before production use.
+    image: ghcr.io/ggml-org/whisper.cpp:main-vulkan
+    command: whisper-server --host 0.0.0.0 --port 8080 --convert -m /models/ggml-large-v3.bin
+    expose:
+      - "8080"
+    volumes:
+      - ./models:/models:ro
+    devices:
+      - /dev/dri
+    # Add the host video/render group IDs when the device permissions require it.
+    restart: unless-stopped
