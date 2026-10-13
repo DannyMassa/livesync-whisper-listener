@@ -1,6 +1,6 @@
 {
   "name": "livesync-whisper-listener",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Transcribe audio in an Obsidian Self-hosted LiveSync vault with a whisper.cpp-compatible server",
   "type": "module",
   "bin": {

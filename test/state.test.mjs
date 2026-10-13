@@ -23,3 +23,14 @@ test("rejects corrupt or unsupported state", async (t) => {
   await writeFile(join(directory, "state.json"), "{}\n");
   await assert.rejects(() => new StateStore(directory).load(), /unsupported state schema/);
 });
+
+test("loads legacy unversioned state", async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), "listener-state-"));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  await writeFile(join(directory, "state.json"), '{"done":{"audio|1-a":true}}\n');
+  const state = new StateStore(directory);
+  await state.load();
+  assert.equal(state.has("audio|1-a"), true);
+  await state.save();
+  assert.equal(JSON.parse(await readFile(join(directory, "state.json"), "utf8")).version, 1);
+});

@@ -2,8 +2,8 @@ apiVersion: v2
 name: livesync-whisper-listener
 description: Transcribe audio in an Obsidian Self-hosted LiveSync vault
 type: application
-version: 0.1.0
-appVersion: "0.1.0"
+version: 0.1.1
+appVersion: "0.1.1"
 home: https://github.com/DannyMassa/livesync-whisper-listener
 sources:
   - https://github.com/DannyMassa/livesync-whisper-listener

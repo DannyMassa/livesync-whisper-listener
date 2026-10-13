@@ -13,10 +13,12 @@ export class StateStore {
   async load() {
     try {
       const parsed = JSON.parse(await readFile(this.path, "utf8"));
-      if (parsed.version !== 1 || !parsed.done || typeof parsed.done !== "object" || Array.isArray(parsed.done)) {
+      if (!parsed.done || typeof parsed.done !== "object" || Array.isArray(parsed.done)) {
         throw new Error("unsupported state schema");
       }
-      this.state = parsed;
+      if (parsed.version === undefined) this.state = { version: 1, done: parsed.done };
+      else if (parsed.version === 1) this.state = parsed;
+      else throw new Error("unsupported state schema");
     } catch (error) {
       if (error.code !== "ENOENT") throw error;
     }
